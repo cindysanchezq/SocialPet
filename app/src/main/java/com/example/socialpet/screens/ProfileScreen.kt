@@ -12,7 +12,7 @@ import androidx.navigation.NavHostController
 
 @Composable
 
-fun BotonesScreen(navController: NavHostController) {
+fun ProfileScreen(navController: NavHostController) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.fillMaxSize()

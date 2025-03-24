@@ -4,9 +4,9 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.socialpet.screens.BotonesScreen
-import com.example.socialpet.screens.FotosScreen
-import com.example.socialpet.screens.PerfilScreen
+import com.example.socialpet.screens.ButtonScreen
+import com.example.socialpet.screens.PhotosScreen
+import com.example.socialpet.screens.ProfileScreen
 import com.example.socialpet.screens.VideosScreen
 import com.example.socialpet.screens.WebScreen
 
@@ -18,12 +18,12 @@ fun NavHostController(){
 
     NavHost(
         navController = navController,
-        startDestination = "perfil"
+        startDestination = "profile"
         ){
-        composable(route="perfil") { PerfilScreen(navController) }
-        composable(route ="botones" ) { BotonesScreen(navController) }
-        composable(route="fotos") { FotosScreen(navController) }
-        composable(route="video") { VideosScreen(navController) }
+        composable(route="profile") { ProfileScreen(navController) }
+        composable(route ="button" ) { ButtonScreen(navController) }
+        composable(route="photos") { PhotosScreen(navController) }
+        composable(route="videos") { VideosScreen(navController) }
         composable(route="web") { WebScreen(navController) }
 
     }

@@ -12,7 +12,7 @@ import androidx.navigation.NavHostController
 
 @Composable
 
-fun FotosScreen(navController: NavHostController) {
+fun PhotosScreen(navController: NavHostController) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.fillMaxSize()

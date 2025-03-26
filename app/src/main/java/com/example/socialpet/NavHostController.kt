@@ -1,6 +1,7 @@
 package com.example.socialpet
 
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -12,26 +13,15 @@ import com.example.socialpet.screens.WebScreen
 
 
 @Composable
-
-fun NavHostController(){
-    val navController= rememberNavController()
-
+fun AppNavigation(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = "profile"
-        ){
-        composable(route="profile") { ProfileScreen(navController) }
-        composable(route ="button" ) { ButtonScreen(navController) }
-        composable(route="photos") { PhotosScreen(navController) }
-        composable(route="videos") { VideosScreen(navController) }
-        composable(route="web") { WebScreen(navController) }
-
+        startDestination = Screen.Profile.route
+    ) {
+        composable(Screen.Profile.route) { ProfileScreen(navController) }
+        composable(Screen.Button.route) { ButtonScreen(navController) }
+        composable(Screen.Photos.route) { PhotosScreen(navController) }
+        composable(Screen.Videos.route) { VideosScreen(navController) }
+        composable(Screen.Web.route) { WebScreen(navController) }
     }
-
-
-
-
-
-
-
 }

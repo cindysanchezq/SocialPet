@@ -16,8 +16,8 @@ fun ProfileScreen(navController: NavHostController) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier.fillMaxSize()
-            .background(color= Color.LightGray)
+
     ){
-        Text(text="Prueba pantalla")
+        Text(text="Perfil")
     }
 }

@@ -16,7 +16,7 @@ import com.example.socialpet.screens.WebScreen
 fun AppNavigation(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Profile.route
+        startDestination = Screen.Web.route
     ) {
         composable(Screen.Profile.route) { ProfileScreen(navController) }
         composable(Screen.Button.route) { ButtonScreen(navController) }

@@ -57,14 +57,14 @@ fun ProfileScreen(navController: NavHostController) {
 
             Spacer(modifier = Modifier.height(8.dp)) // Espacio entre textos
 
-            Image(
-                painter = painterResource(id = R.drawable.dog), // Asegúrate de tener la imagen en tu carpeta de recursos
-                contentDescription = "Imagen de Lucas",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp), // Ajusta el tamaño según tus necesidades
-                contentScale = ContentScale.Crop
-            )
+           // Image(
+            //    painter = painterResource(id = R.drawable.dog), // Asegúrate de tener la imagen en tu carpeta de recursos
+            //    contentDescription = "Imagen de Lucas",
+            //    modifier = Modifier
+            //        .fillMaxWidth()
+            //        .height(200.dp), // Ajusta el tamaño según tus necesidades
+            //    contentScale = ContentScale.Crop
+        //    )
 
 
 

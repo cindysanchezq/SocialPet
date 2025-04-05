@@ -1,127 +1,150 @@
 package com.example.socialpet.screens
 
 import androidx.compose.foundation.Image
-//import androidx.compose.foundation.clickable //luego se utilizara
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import com.example.socialpet.R
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
+import com.example.socialpet.R
+import androidx.navigation.NavHostController
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 
+data class Photo(val imageRes: Int, val description: String, val independiente: String)
 
 @Composable
-
 fun PhotosScreen(navController: NavHostController) {
-
     val photos = listOf(
-        Photo(R.drawable.image1, "Descripción de la imagen 1","Lucas, el rey del parque. Siempre corriendo tras las pelotas y haciendo nuevos amigos."),
-        Photo(R.drawable.image2, "Descripción de la imagen 2","Rocky y Luna, jugando todo el día. Hermanos y mejores amigos. #HermanosPerrunos"),
-        Photo(R.drawable.image3, "Descripción de la imagen 3","Thor y Nala, juntos para proteger su hogar y compartir siestas. #HermanosEnCasa")
+        Photo(R.drawable.image1, "Lucas, el rey del parque", "Siempre corriendo tras las pelotas y haciendo nuevos amigos."),
+        Photo(R.drawable.image2, "Rocky y Luna", "Jugando todo el día. Hermanos y mejores amigos."),
+        Photo(R.drawable.image3, "Thor y Nala", "Juntos para proteger su hogar y compartir siestas."),
+        Photo(R.drawable.image4, "Thor y Nala", "Juntos para proteger su hogar y compartir siestas."),
+        Photo(R.drawable.image5, "Thor y Nala", "Juntos para proteger su hogar y compartir siestas."),
+        Photo(R.drawable.image6, "Thor y Nala", "Juntos para proteger su hogar y compartir siestas.")
     )
 
     var selectedPhoto by remember { mutableStateOf<Photo?>(null) }
 
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
+    if (selectedPhoto == null) {
+        // Galería
         Column(
-            modifier = Modifier.fillMaxSize().padding(30.dp),
-            //verticalArrangement = Arrangement.Center, //alinea texto al lado
-            horizontalAlignment = Alignment.CenterHorizontally //alinea el texto en el centro
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
         ) {
-            if (selectedPhoto == null) {
+            Spacer(modifier = Modifier.height(120.dp))
+            Text(
+                text = "MIS FOTOS",
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF009688),
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
 
-                Spacer(modifier = Modifier.height(60.dp)) // Espacio entre navbar y texto galeria de fotos
+            Spacer(modifier = Modifier.height(50.dp))
 
-                // Título
-                Text(
-                    text = buildAnnotatedString {
-                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append("Galería de Fotos ")
-                        }
-                    },
-                    fontSize = 25.sp
-                )
-                Spacer(modifier = Modifier.height(6.dp)) // Espacio entre navbar y texto galeria de fotos
-
-            }
-            // Galería de fotos
-            if (selectedPhoto == null) {
-                LazyColumn {
-                    items(photos.size) { index ->
-                        // Mostrar cada foto con un texto distinto
-                        val photo = photos[index]
-                        PhotoItem(photo = photos[index]) { selectedPhoto = it }
-                        // Descripción adicional
-                        Text(
-                            text = photo.independiente,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Spacer(modifier = Modifier.height(8.dp)) // Espacio debajo de cada imagen
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(8.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(photos) { photo ->
+                    PhotoCard(photo = photo) {
+                        selectedPhoto = it
                     }
                 }
-            } /*else {
-                PhotoDetail(photo = selectedPhoto!!) { selectedPhoto = null }
-            }*/
+            }
         }
-
+    } else {
+        // Vista de detalle
+        PhotoDetail(photo = selectedPhoto!!) {
+            selectedPhoto = null
+        }
     }
-
-
 }
 
-//Estilos para la galeria de fotos y tamaño
 @Composable
-fun PhotoItem(photo: Photo, onClick: (Photo) -> Unit) {
+fun PhotoCard(photo: Photo, onClick: (Photo) -> Unit) {
+
     Card(
-        modifier = Modifier.fillMaxWidth().padding(5.dp)/*.clickable { onClick(photo) }*/, // me deja espaciado entre imagenes
+        modifier = Modifier
+            .fillMaxWidth()
+            .aspectRatio(1f)
+            .clickable { onClick(photo) },
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(6.dp)
     ) {
-        Image(
-            painter = painterResource(id = photo.imageRes),
-            contentDescription = photo.description,
-            modifier = Modifier.fillMaxWidth()
-                .height(190.dp) // Controla la altura de la imagen
-                .clip(RoundedCornerShape(12.dp)),
-            contentScale = ContentScale.Crop
-        )
+        Column {
+
+            Image(
+                painter = painterResource(id = photo.imageRes),
+                contentDescription = photo.description,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(12.dp))
+            )
+        }
     }
 }
 
-//Cuando se le da click se desplaza el detalle
-/*@Composable
+@Composable
 fun PhotoDetail(photo: Photo, onBack: () -> Unit) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-        verticalArrangement = Arrangement.Center
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 24.dp)
+            .padding(top = 200.dp), // ✅ separa de la barra superior
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Top
     ) {
+        Spacer(modifier = Modifier.height(16.dp)) // espacio adicional si quieres más separación
+
         Image(
             painter = painterResource(id = photo.imageRes),
             contentDescription = photo.description,
-            modifier = Modifier.fillMaxWidth().height(300.dp),
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp)
+                .clip(RoundedCornerShape(16.dp))
         )
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(text = photo.description, style = MaterialTheme.typography.bodyLarge)
-        Spacer(modifier = Modifier.height(16.dp))
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            text = photo.description,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = photo.independiente,
+            fontSize = 16.sp,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
         Button(onClick = onBack) {
             Text("Volver a la galería")
         }
     }
-}*/
+}
 
-data class Photo(val imageRes: Int, val description: String, val independiente: String)
+

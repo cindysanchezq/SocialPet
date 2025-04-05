@@ -1,13 +1,15 @@
 package com.example.socialpet
 
+import ButtonScreen
+import ProfileScreen
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.socialpet.screens.ButtonScreen
+
 import com.example.socialpet.screens.PhotosScreen
-import com.example.socialpet.screens.ProfileScreen
+
 import com.example.socialpet.screens.VideosScreen
 import com.example.socialpet.screens.WebScreen
 

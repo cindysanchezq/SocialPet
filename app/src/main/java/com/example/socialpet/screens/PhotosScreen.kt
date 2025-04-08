@@ -147,4 +147,3 @@ fun PhotoDetail(photo: Photo, onBack: () -> Unit) {
     }
 }
 
-

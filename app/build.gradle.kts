@@ -55,6 +55,7 @@ dependencies {
     implementation("androidx.media3:media3-ui:1.2.0")
     implementation("io.coil-kt:coil-compose:2.4.0")
 
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

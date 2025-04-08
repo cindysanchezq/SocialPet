@@ -1,42 +1,69 @@
 package com.example.socialpet.screens
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import android.graphics.BitmapFactory
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.*
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.socialpet.R
-import androidx.navigation.NavHostController
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.*
+import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
+import com.example.socialpet.R
+import com.google.accompanist.pager.*
+import kotlinx.coroutines.launch
+import java.io.InputStream
 
-data class Photo(val imageRes: Int, val description: String, val independiente: String)
+sealed class PhotoData {
+    data class Resource(val resId: Int) : PhotoData()
+    data class Bitmap(val bitmap: ImageBitmap) : PhotoData()
+}
 
+data class Photo(val image: PhotoData, val description: String, val independiente: String)
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun PhotosScreen(navController: NavHostController) {
-    val photos = listOf(
-        Photo(R.drawable.image1, "Lucas, el rey del parque", "Siempre corriendo tras las pelotas y haciendo nuevos amigos."),
-        Photo(R.drawable.image2, "Rocky y Luna", "Jugando todo el día. Hermanos y mejores amigos."),
-        Photo(R.drawable.image3, "Thor y Nala", "Juntos para proteger su hogar y compartir siestas."),
-        Photo(R.drawable.image4, "Thor y Nala", "Juntos para proteger su hogar y compartir siestas."),
-        Photo(R.drawable.image5, "Thor y Nala", "Juntos para proteger su hogar y compartir siestas."),
-        Photo(R.drawable.image6, "Thor y Nala", "Juntos para proteger su hogar y compartir siestas.")
-    )
+    val context = LocalContext.current
+    val photos = remember {
+        mutableStateListOf(
+            Photo(PhotoData.Resource(R.drawable.image1), "Lucas, el rey del parque", "Siempre corriendo tras las pelotas y haciendo nuevos amigos."),
+            Photo(PhotoData.Resource(R.drawable.image2), "Rocky y Luna", "Jugando todo el día. Hermanos y mejores amigos."),
+            Photo(PhotoData.Resource(R.drawable.image3), "Thor y Nala", "Juntos para proteger su hogar y compartir siestas.")
+        )
+    }
+    var selectedIndex by remember { mutableStateOf<Int?>(null) }
 
-    var selectedPhoto by remember { mutableStateOf<Photo?>(null) }
+    var imageToAdd by remember { mutableStateOf<ImageBitmap?>(null) }
+    var showDialog by remember { mutableStateOf(false) }
 
-    if (selectedPhoto == null) {
-        // Galería
+    var tempTitle by remember { mutableStateOf("") }
+    var tempDescription by remember { mutableStateOf("") }
+
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            val inputStream: InputStream? = context.contentResolver.openInputStream(it)
+            val bitmap = BitmapFactory.decodeStream(inputStream)
+            bitmap?.let {
+                imageToAdd = it.asImageBitmap()
+                showDialog = true
+            }
+        }
+    }
+
+    if (selectedIndex == null) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -51,7 +78,17 @@ fun PhotosScreen(navController: NavHostController) {
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
 
-            Spacer(modifier = Modifier.height(50.dp))
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Button(
+                onClick = { launcher.launch("image/*") },
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF009688))
+            ) {
+                Text("Agregar Foto")
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
 
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
@@ -60,90 +97,167 @@ fun PhotosScreen(navController: NavHostController) {
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(photos) { photo ->
+                itemsIndexed(photos) { index, photo ->
                     PhotoCard(photo = photo) {
-                        selectedPhoto = it
+                        selectedIndex = index
                     }
                 }
             }
         }
     } else {
-        // Vista de detalle
-        PhotoDetail(photo = selectedPhoto!!) {
-            selectedPhoto = null
-        }
+        PhotoDetailPager(
+            photos = photos,
+            startIndex = selectedIndex!!,
+            onClose = { selectedIndex = null }
+        )
+    }
+
+    // ✅ Diálogo para título y descripción
+    if (showDialog && imageToAdd != null) {
+        AlertDialog(
+            onDismissRequest = {
+                showDialog = false
+                tempTitle = ""
+                tempDescription = ""
+                imageToAdd = null
+            },
+            confirmButton = {
+                Button(onClick = {
+                    photos.add(
+                        Photo(
+                            image = PhotoData.Bitmap(imageToAdd!!),
+                            description = tempTitle,
+                            independiente = tempDescription
+                        )
+                    )
+                    showDialog = false
+                    tempTitle = ""
+                    tempDescription = ""
+                    imageToAdd = null
+                }) {
+                    Text("Guardar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showDialog = false
+                    tempTitle = ""
+                    tempDescription = ""
+                    imageToAdd = null
+                }) {
+                    Text("Cancelar")
+                }
+            },
+            title = { Text("Detalles de la Foto") },
+            text = {
+                Column {
+                    OutlinedTextField(
+                        value = tempTitle,
+                        onValueChange = { tempTitle = it },
+                        label = { Text("Título") }
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = tempDescription,
+                        onValueChange = { tempDescription = it },
+                        label = { Text("Descripción") }
+                    )
+                }
+            }
+        )
     }
 }
-
 @Composable
-fun PhotoCard(photo: Photo, onClick: (Photo) -> Unit) {
-
+fun PhotoCard(photo: Photo, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(1f)
-            .clickable { onClick(photo) },
+            .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(6.dp)
     ) {
-        Column {
-
-            Image(
-                painter = painterResource(id = photo.imageRes),
+        when (val image = photo.image) {
+            is PhotoData.Resource -> Image(
+                painter = painterResource(id = image.resId),
                 contentDescription = photo.description,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(12.dp))
+                modifier = Modifier.fillMaxSize()
+            )
+            is PhotoData.Bitmap -> Image(
+                bitmap = image.bitmap,
+                contentDescription = photo.description,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
             )
         }
     }
 }
-
+@OptIn(ExperimentalPagerApi::class)
 @Composable
-fun PhotoDetail(photo: Photo, onBack: () -> Unit) {
+fun PhotoDetailPager(photos: List<Photo>, startIndex: Int, onClose: () -> Unit) {
+    val pagerState = rememberPagerState(initialPage = startIndex)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 24.dp)
-            .padding(top = 200.dp), // ✅ separa de la barra superior
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
+            .background(Color.White)
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(16.dp)) // espacio adicional si quieres más separación
-
-        Image(
-            painter = painterResource(id = photo.imageRes),
-            contentDescription = photo.description,
-            contentScale = ContentScale.Crop,
+        HorizontalPager(
+            count = photos.size,
+            state = pagerState,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(300.dp)
-                .clip(RoundedCornerShape(16.dp))
-        )
+                .weight(1f)
+        ) { page ->
+            val photo = photos[page]
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(150.dp))
 
-        Spacer(modifier = Modifier.height(24.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                ) {
+                    when (val image = photo.image) {
+                        is PhotoData.Resource -> Image(
+                            painter = painterResource(id = image.resId),
+                            contentDescription = photo.description,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                        is PhotoData.Bitmap -> Image(
+                            bitmap = image.bitmap,
+                            contentDescription = photo.description,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                }
 
-        Text(
-            text = photo.description,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
-        )
+                Spacer(modifier = Modifier.height(50.dp))
+                Text(photo.description, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text(photo.independiente, fontSize = 16.sp)
+            }
+        }
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = photo.independiente,
-            fontSize = 16.sp,
-            textAlign = TextAlign.Center
-        )
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        Button(onClick = onBack) {
+        Button(
+            onClick = onClose,
+            modifier = Modifier
+                .padding(bottom = 150.dp)
+        ) {
             Text("Volver a la galería")
         }
     }
 }
-

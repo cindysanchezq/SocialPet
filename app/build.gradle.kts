@@ -54,6 +54,9 @@ dependencies {
     implementation("androidx.media3:media3-exoplayer:1.2.0")
     implementation("androidx.media3:media3-ui:1.2.0")
     implementation("io.coil-kt:coil-compose:2.4.0")
+    //nuevos
+    implementation("com.google.accompanist:accompanist-pager:0.31.6-rc")
+    implementation("com.google.accompanist:accompanist-pager-indicators:0.31.6-rc")
 
 
     testImplementation(libs.junit)

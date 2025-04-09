@@ -112,7 +112,7 @@ fun ProfileScreen(
                     fontSize = 16.sp,
                     color = Color.Black,
                     modifier = Modifier.fillMaxWidth(),
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center // ⭐ Centrado
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
                 )
             }
 
@@ -145,7 +145,7 @@ fun InfoCard(emoji: String, text: String) {
                 .fillMaxWidth()
                 .padding(8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center // ⭐ Centro horizontal
+            horizontalArrangement = Arrangement.Center
         ) {
             Text(text = "$emoji $text", fontSize = 16.sp)
         }

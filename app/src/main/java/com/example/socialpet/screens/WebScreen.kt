@@ -1,6 +1,5 @@
 package com.example.socialpet.screens
 
-import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -28,6 +27,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun WebScreen(navController: NavHostController) {
     var selectedUrl by remember { mutableStateOf<String?>(null) }
+    var customUrl by remember { mutableStateOf("") }
 
     val scrollState = rememberScrollState()
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
@@ -63,7 +63,7 @@ fun WebScreen(navController: NavHostController) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Encuentra aqui las mejores recomendaciones para ti en cuidado animal.",
+                text = "Encuentra aquí las mejores recomendaciones para ti en cuidado animal.",
                 fontSize = 18.sp,
                 color = Color.DarkGray,
                 textAlign = TextAlign.Center
@@ -71,10 +71,56 @@ fun WebScreen(navController: NavHostController) {
 
             Spacer(modifier = Modifier.height(32.dp))
 
+
+            Text(
+                text = "Visita una página personalizada",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color(0xFF1976D2)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedTextField(
+                value = customUrl,
+                onValueChange = { customUrl = it },
+                label = { Text("Escribe la URL (https://...)") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Button(
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF009688)),
+                onClick = {
+                if (customUrl.isNotBlank()) {
+                    coroutineScope.launch {
+                        selectedUrl = null
+                        delay(50)
+                        selectedUrl = customUrl
+                        delay(300)
+                        bringIntoViewRequester.bringIntoView()
+                    }
+                }
+            }) {
+                Text("Cargar página")
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+
             val links = listOf(
                 "Tienda" to "https://laika.com.co/",
                 "Cuidado y salud" to "https://www.desparasitaatumascota.es/blog",
                 "Entrenamiento" to "https://www.zooplus.es/magazine/perros/adiestramiento-canino/adiestrador-de-perros"
+            )
+
+            Text(
+                text = "Recomendaciones populares:",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.Gray,
+                modifier = Modifier.padding(bottom = 8.dp)
             )
 
             links.forEach { (title, url) ->
@@ -84,7 +130,7 @@ fun WebScreen(navController: NavHostController) {
                     fontWeight = FontWeight.Medium,
                     color = Color(0xFF1976D2),
                     modifier = Modifier
-                        .padding(vertical = 12.dp)
+                        .padding(vertical = 8.dp)
                         .clickable {
                             coroutineScope.launch {
                                 selectedUrl = null
@@ -99,6 +145,7 @@ fun WebScreen(navController: NavHostController) {
 
             Spacer(modifier = Modifier.height(32.dp))
 
+            // 🔹 Visor Web
             if (selectedUrl != null) {
                 Text(
                     text = "Contenido Web",

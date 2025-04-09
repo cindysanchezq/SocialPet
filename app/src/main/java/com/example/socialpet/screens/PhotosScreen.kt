@@ -112,7 +112,7 @@ fun PhotosScreen(navController: NavHostController) {
         )
     }
 
-    // ✅ Diálogo para título y descripción
+
     if (showDialog && imageToAdd != null) {
         AlertDialog(
             onDismissRequest = {

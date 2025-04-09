@@ -4,6 +4,7 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.annotation.OptIn
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -15,17 +16,18 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 
+
 @OptIn(UnstableApi::class)
 @Composable
 fun VideoPlayer(
     videoUrl: String,
-    isFullscreen: MutableState<Boolean>,
-    modifier: Modifier = Modifier
+    isFullscreen: Boolean,
+    modifier: Modifier = Modifier,
+    onToggleFullscreen: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val activity = context as ComponentActivity
 
-    // Reproductor
     val exoPlayer = remember {
         ExoPlayer.Builder(context).build().apply {
             setMediaItem(MediaItem.fromUri(videoUrl))
@@ -34,7 +36,6 @@ fun VideoPlayer(
         }
     }
 
-    // Liberar el reproductor al salir
     DisposableEffect(Unit) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
@@ -51,7 +52,6 @@ fun VideoPlayer(
         }
     }
 
-    // Video embebido
     AndroidView(
         factory = {
             PlayerView(context).apply {
@@ -65,7 +65,7 @@ fun VideoPlayer(
                 setControllerAutoShow(true)
                 setControllerHideOnTouch(false)
                 setFullscreenButtonClickListener {
-                    isFullscreen.value = !isFullscreen.value
+                    onToggleFullscreen()
                 }
             }
         },
@@ -73,8 +73,3 @@ fun VideoPlayer(
     )
 }
 
-// Botón ⛶ de fullscreen
-fun PlayerView.setFullscreenButtonClickListener(onClick: () -> Unit) {
-    val fullscreenButtonId = resources.getIdentifier("exo_fullscreen", "id", context.packageName)
-    findViewById<android.view.View>(fullscreenButtonId)?.setOnClickListener { onClick() }
-}
